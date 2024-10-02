@@ -1,18 +1,11 @@
 import datetime as dt
-import io
 import locale as lc
 import pandas as pd
 import streamlit as st
 from functions import *
-import streamlit_toggle as tog
-from docx.shared import Cm
-from zipfile import ZipFile
-import matplotlib.pyplot as plt
-import plotly.express as px
 import time
 from streamlit_folium import st_folium
 import folium
-import random
 
 
 global countries
