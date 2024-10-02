@@ -42,7 +42,7 @@ if 'finalCheck' not in st.session_state:
     st.session_state['dataframe'] = False
     st.session_state["center"] = [0,0]
     st.session_state["zoom"] = 2
-    df_origen = pd.read_excel('Resources\Permitting_origen.xlsx')
+    df_origen = pd.read_excel('Resources/Permitting_origen.xlsx')
     df_origen.index = df_origen.COUNTRY
     df_origen.drop(columns = 'COUNTRY', inplace = True)
     df_origen['TOTAL'] = df_origen.sum(axis = 1)
