@@ -42,7 +42,7 @@ def grapher(country,df):
         ax.annotate(val.iloc[0][i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y),
                     horizontalalignment=horizontalalignment, **kw)
 
-    ax.set_title(f"{country}\n{total[0]}")
+    ax.set_title(f"{country}\n{total[0]}\n")
 
     return fig
 
