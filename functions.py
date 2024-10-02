@@ -26,6 +26,8 @@ def grapher(country,df):
 
     row = df.loc[df.index==country]
 
+    row['TOTAL'] = row[['SOLAR','WIND','BESS']].sum(axis = 1)
+
     fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
 
     val = row[['SOLAR','WIND','BESS']].iloc[0].index.values + ' ' + row[['SOLAR','WIND','BESS']].astype(str) + ' MW'

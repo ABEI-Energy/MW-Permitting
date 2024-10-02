@@ -68,123 +68,63 @@ st.divider()
 
 colx, coly = st.columns(2)
 
-'''
-with colx:
-
-    uploadedFile = st.file_uploader("Drag here the .xlsx file with the Permitting data).", accept_multiple_files = False,type = 'xlsx' ,key = 'ss_file')
-
-    if (uploadedFile) and (uploadedFile.name.endswith('xlsx')) and (st.session_state.dataframe == False): # sólo entra una vez si se ha tirado un archivo, si es de tipo xlsx y si el session_state no ha pasado por el bucle
-
-        with coly:
-
-            st.session_state.dropped_file = True
-
-            if st.session_state.dropped_file:
-            
-                # Mapa y gráficas
-                df = pd.read_excel(uploadedFile)
-                df.index = df.COUNTRY
-                df.drop(columns = 'COUNTRY', inplace = True)
-                df['TOTAL'] = df.sum(axis = 1)
-
-                st.dataframe(df)
-
-                st.session_state.dataframe = True
-'''
-st.divider()
-
-
-# if st.session_state.dataframe and st.session_state.timer: #Si se ha analizado ya el archivo tirado y el timer vuelve a estar en true
 if st.session_state.timer: #Si se ha analizado ya el archivo tirado y el timer vuelve a estar en true
 
-    cole, colr, colt = st.columns(3)
-    colz, cola = st.columns(2)
+    centroids = [[42.0719,12.7674],[40.4637,-1.7492],[46.8276,1.7137],[55.3781,0.4360],[51.9194,19.1451],[37.7946,-94.5348]]
+    # countries = ['ITALY','SPAIN','FRANCE','UK','POLAND','USA'] orden dentro del programa para que el mapa fluya rápido
+    # countries = ['SPAIN','FRANCE','USA','ITALY','UK','POLAND'] orden dentro del excel
+    zooms = [5,5,4,5,5,5] # Este orden es el que tiene esta gente en el excel 
 
-# countries = ['ITALY','SPAIN','FRANCE','UK','POLAND','USA']
-    centroids = [[41.8719,12.5674],[40.4637,3.7492],[46.2276,2.2137],[55.3781,3.4360],[51.9194,19.1451],[-38.7946,106.5348]]
+# m.fit_bounds([[sout, west], [north, east]])
+# sout west [north east
+    
+    #Esto queda guapo pero va a saltos...
+    bbox_limits = [[[35.817813,-9.338379],[43.802819,4.372559]],[[42.228517,-5.097656],[51.206883,8.525391]],[[24.607069,-125.244141],[49.037868,-64.072266]],[[36.244273,6.08642],[47.294134,19.423828]],[[49.296472,-12.612305],[59.467408,3.120117]],[[48.487486,13.205566],[55.329144,25.114746]]]
 
-    # centroids = [[40.4637,3.7492],[46.2276,2.2137],[-38.7946,106.5348],[41.8719,12.5674],[55.3781,3.4360],[51.9194,19.1451]]
-# countries = ['SPAIN','FRANCE','USA','ITALY','UK','POLAND']
 
     df = pd.read_excel('Resources\Permitting_origen.xlsx')
     df_aux = df.reset_index()
-    df_aux[['Latitude','Longitude']] = pd.DataFrame(centroids, columns = ['Latitude','Longitude'])
-    df_aux.index = df_aux['COUNTRY'].drop(columns = 'COUNTRY')
+    df_aux['zoom'] = pd.DataFrame(data = zooms)
+    df_aux['bbox'] = pd.DataFrame({'Coordinates': bbox_limits})
+    df_coord = pd.DataFrame(centroids, columns = ['Latitude','Longitude'])
+    df_coord['COUNTRY'] = pd.DataFrame(countries)
+    df_coord = df_coord.merge(df_aux, on = 'COUNTRY')
+    # df_aux[['Latitude','Longitude']] = pd.DataFrame(centroids, columns = ['Latitude','Longitude'])
+    df_coord.index = df_coord['COUNTRY']
+    df_coord = df_coord.drop(columns = ['index'])
+
+    placeholder = st.empty()
 
     @st.fragment(run_every=dt.timedelta(seconds = 5))
     def mapping():
 
-        m = folium.Map(location= CENTER_START, zoom_start=ZOOM_START)
-
-        st_folium(m,center=[df_aux.loc[df_aux.COUNTRY== st.session_state["country"], 'Latitude'][0] , df_aux.loc[df_aux.COUNTRY== st.session_state["country"], 'Longitude'][0]],zoom=5,height=400,width=400)
-        
-        time.sleep(5)
-        st.session_state.i += 1
-        if st.session_state.i == 6:
-            st.session_state.i = 0
-            st.session_state.country = countries[0]
-        st.session_state.country = countries[st.session_state.i]
-        pass
-    
-    mapping()
-'''
-    placeholder = st.empty()
-    with placeholder.container():
-        m = folium.Map(location= CENTER_START, zoom_start=ZOOM_START)
-
-        st_folium(m,center=[df_aux.loc[df_aux.COUNTRY== st.session_state["country"], 'Latitude'][0] , df_aux.loc[df_aux.COUNTRY== st.session_state["country"], 'Longitude'][0]],zoom=6,height=400,width=700)
-        
-        time.sleep(5)
-        st.session_state += 1
-'''
-'''
-    for country in df.index:
-
-        key_str = random.random()
-
-        st.session_state["center"] = [df_aux.loc[df_aux.COUNTRY== country, 'Latitude'][0] , df_aux.loc[df_aux.COUNTRY== country, 'Longitude'][0]]
-           
-        st.session_state["zoom"] = 4
-
-        m = folium.Map(location= CENTER_START, zoom_start=ZOOM_START)
-
-        placeholder = st.empty()
         with placeholder.container():
-            st_folium(m,center=[df_aux.loc[df_aux.COUNTRY== country, 'Latitude'][0] , df_aux.loc[df_aux.COUNTRY== country, 'Longitude'][0]],zoom=4,key=key_str,height=400,width=700)
+        
+            colz, cola = st.columns(2)
 
-            time.sleep(5)
+            with cola:
+
+                # Gráfica
+
+                fig = grapher(df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'COUNTRY'][0],df_coord)
+                st.pyplot(fig)
+
+            with colz:
+
+                m = folium.Map(location= CENTER_START, zoom_start=ZOOM_START, tiles = 'Cartodb Positron')
+                # m.fit_bounds(df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'bbox'][0])
+
+                st_folium(m,center=[df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'Latitude'][0] , df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'Longitude'][0]],zoom=int(df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'zoom'][0]),height=400,width=700)
+
+                time.sleep(5)
+                st.session_state.i += 1
+                if st.session_state.i == 6:
+                    st.session_state.i = 0
+                    st.session_state.country = countries[0]
+                st.session_state.country = countries[st.session_state.i]
+        
         placeholder.empty()
-    del st.session_state.timer
-'''
 
+    mapping()
 
-
-
-
-
-'''
-    for country in df.index:
-        # html_show = px.scatter_mapbox(df_aux, lat='Latitude', lon='Longitude', mapbox_style="open-street-map", center = dict(lat = df_aux.loc[df_aux.COUNTRY== country, 'Latitude'][0], lon = df_aux.loc[df_aux.COUNTRY== country, 'Longitude'][0] ), zoom = 6, height = 800, width = 1800)
-    
-    # with cole:
-    #     pass
-    # with colr:
-    #     st.title(f"{country}")
-    # with colt:
-    #     pass
-
-        with colz:
-            # Mapa
-            # st.write(html_show)
-            # st.map(latitude=df_aux.loc[df_aux.COUNTRY== country, 'Latitude'][0], longitude=df_aux.loc[df_aux.COUNTRY== country, 'Longitude'][0], zoom = 20)
-            pass
-
-        with cola:
-            # Gráfica
-
-            fig = grapher(country,df)
-            st.pyplot(fig)
-
-
-        time.sleep(2)
-    '''
+st.divider()
