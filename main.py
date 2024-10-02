@@ -67,15 +67,11 @@ if st.session_state.timer: #Si se ha analizado ya el archivo tirado y el timer v
     # countries = ['ITALY','SPAIN','FRANCE','UK','POLAND','USA'] orden dentro del programa para que el mapa fluya rápido
     # countries = ['SPAIN','FRANCE','USA','ITALY','UK','POLAND'] orden dentro del excel
     zooms = [5,5,4,5,5,5] # Este orden es el que tiene esta gente en el excel 
-
-# m.fit_bounds([[sout, west], [north, east]])
-# sout west [north east
-    
     #Esto queda guapo pero va a saltos...
     bbox_limits = [[[35.817813,-9.338379],[43.802819,4.372559]],[[42.228517,-5.097656],[51.206883,8.525391]],[[24.607069,-125.244141],[49.037868,-64.072266]],[[36.244273,6.08642],[47.294134,19.423828]],[[49.296472,-12.612305],[59.467408,3.120117]],[[48.487486,13.205566],[55.329144,25.114746]]]
 
 
-    df = pd.read_excel('Resources\Permitting_origen.xlsx')
+    df = pd.read_excel('Resources/Permitting_origen.xlsx')
     df_aux = df.reset_index()
     df_aux['zoom'] = pd.DataFrame(data = zooms)
     df_aux['bbox'] = pd.DataFrame({'Coordinates': bbox_limits})
