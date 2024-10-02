@@ -105,7 +105,7 @@ if st.session_state.timer: #Si se ha analizado ya el archivo tirado y el timer v
 
                 st_folium(m,center=[df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'Latitude'][0] , df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'Longitude'][0]],zoom=int(df_coord.loc[df_coord.COUNTRY== st.session_state["country"], 'zoom'][0]),height=400,width=700)
 
-                time.sleep(5)
+                time.sleep(20)
                 st.session_state.i += 1
                 if st.session_state.i == 6:
                     st.session_state.i = 0
